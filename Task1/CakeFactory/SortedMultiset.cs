@@ -27,7 +27,7 @@ public class SortedMultiset
         }
     }
 
-    public Cake GetFirst()
+    public Cake First()
     {
         return sortedSet.First();
     }
@@ -80,17 +80,4 @@ public class SortedMultiset
             }
         }
     } 
-}
-
-public class CakePriceComparer : IComparer<Cake>
-{
-    public int Compare(Cake firstCake, Cake secondCake)
-    {
-        if (firstCake.CakeSubType == secondCake.CakeSubType && firstCake.CakeType == secondCake.CakeType)
-        {
-            return 0;
-        }
-
-        return 1;
-    }
 }
