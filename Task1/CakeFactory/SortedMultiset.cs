@@ -1,43 +1,96 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
-public class SortedMultiset<T> : IEnumerable<T> where T : IComparable<T>
+public class SortedMultiset
 {
-    private readonly List<T> elements = new List<T>();
-    private readonly IComparer<T> comparer;
+    private SortedSet<Cake> sortedSet;
+    private Dictionary<Cake, int> countDictionary;
 
-    public SortedMultiset(IComparer<T> comparer = null)
+    public SortedMultiset()
     {
-        this.comparer = comparer ?? Comparer<T>.Default;
+        sortedSet = new SortedSet<Cake>();
+        countDictionary = new Dictionary<Cake, int>();
     }
 
-    public void Add(T item)
+    public void Add(Cake item)
     {
-        int index = elements.BinarySearch(item, comparer);
-        if (index < 0)
-            index = ~index; // Get the index of the next greater element
-        elements.Insert(index, item);
-    }
-
-    public bool Remove(T item)
-    {
-        int index = elements.BinarySearch(item, comparer);
-        if (index >= 0)
+        if (countDictionary.ContainsKey(item))
         {
-            elements.RemoveAt(index);
+            countDictionary[item]++;
+        }
+        else
+        {
+            sortedSet.Add(item);
+            countDictionary[item] = 1;
+        }
+    }
+
+    public Cake GetFirst()
+    {
+        return sortedSet.First();
+    }
+
+    public bool Remove(Cake item)
+    {
+        if (countDictionary.ContainsKey(item))
+        {
+            countDictionary[item]--;
+            if (countDictionary[item] == 0)
+            {
+                sortedSet.Remove(item);
+                countDictionary.Remove(item);
+            }
             return true;
         }
-        return false;
+        else
+        {
+            return false;
+        }
     }
 
-    public IEnumerator<T> GetEnumerator()
+    public int Count()
     {
-        return elements.GetEnumerator();
+        return sortedSet.Count;
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
+    public int GetCakeCount(Cake item)
     {
-        return GetEnumerator();
+        if (countDictionary.TryGetValue(item, out int count))
+        {
+            return count;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    public IEnumerable<Cake> Elements
+    {
+        get
+        {
+            foreach (var item in sortedSet)
+            {
+                for (int i = 0; i < countDictionary[item]; i++)
+                {
+                    yield return item;
+                }
+            }
+        }
+    } 
+}
+
+public class CakePriceComparer : IComparer<Cake>
+{
+    public int Compare(Cake firstCake, Cake secondCake)
+    {
+        if (firstCake.CakeSubType == secondCake.CakeSubType && firstCake.CakeType == secondCake.CakeType)
+        {
+            return 0;
+        }
+
+        return 1;
     }
 }
